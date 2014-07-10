@@ -53,6 +53,7 @@
 					value="提交" />
 			</form>
 		</div>
+		<p>2.Servlet通过forward转向/WEB-INF/pages/hi.html页面 <a href="sayhi">/hi</a><br /></p>
 	</div>
 </body>
 </html>

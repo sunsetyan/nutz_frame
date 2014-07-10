@@ -9,6 +9,7 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 
 import com.sunrise22.galaxy.usage.HiAction;
 
+// 这里指定了配置文件的路径 conf
 @IocBy(type=ComboIocProvider.class,args={"*org.nutz.ioc.loader.json.JsonLoader","conf",
 	  "*org.nutz.ioc.loader.annotation.AnnotationIocLoader","com.sunrise22.galaxy"})
 @Encoding(input="utf8",output="utf8")
