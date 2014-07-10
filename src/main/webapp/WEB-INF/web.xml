@@ -11,10 +11,10 @@
 		<listener-class>com.sunrise22.galaxy.entry.ContextListener</listener-class>
 	</listener>
 
-    <!-- Start Config Servlet For Galaxy Controller -->
+	<!-- Start Config Servlet For Galaxy Controller -->
 	<servlet>
 		<servlet-name>GalaxyControlServlet</servlet-name>
-		<servlet-class>com.sunrise22.galaxy.usage.GalaxyControlServlet</servlet-class>
+		<servlet-class>com.sunrise22.galaxy.entry.GalaxyControlServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
@@ -26,4 +26,42 @@
 		<url-pattern>/init</url-pattern>
 	</servlet-mapping>
 	<!-- End Config Servlet For Galaxy Controller -->
+
+	<!-- NUTZ SERVLET FACADE 处理分发 -->
+	<servlet>
+		<servlet-name>galaxy</servlet-name>
+		<servlet-class>org.nutz.mvc.NutServlet</servlet-class>
+		<init-param>
+			<param-name>modules</param-name>
+			<param-value>com.sunrise22.galaxy.web.FacadeModule</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>galaxy</servlet-name>
+		<url-pattern>*.nut</url-pattern>
+	</servlet-mapping>
+	<!-- END NUTZ SERVLET FACADE -->
+
+	<!-- START NUTZ & FREEMARKER ACTION CONFIG <servlet> <servlet-name>nutz</servlet-name> 
+		<servlet-class>com.sunrise22.galaxy.usage.FreeMarkerAction</servlet-class> 
+		</servlet> <servlet-mapping> <servlet-name>nutz</servlet-name> <url-pattern>/nutz</url-pattern> 
+		</servlet-mapping> END NUTZ & FREEMARKER ACTION CONFIG -->
+
+	<!-- START NUTZ FILTER <filter> <filter-name>nutzFilter</filter-name> <filter-class>org.nutz.mvc.NutFilter</filter-class> 
+		<init-param> <param-name>modules</param-name> <param-value>com.sunrise22.galaxy.web.FacadeModule</param-value> 
+		</init-param> <init-param> <param-name>ignore</param-name> <param-value>^(.+[.])(jsp|png|gif|jpg|js|css|jspx|jpeg|html)$</param-value> 
+		</init-param> </filter> <filter-mapping> <filter-name>nutzFilter</filter-name> 
+		<url-pattern>*.mvc</url-pattern> </filter-mapping> <filter-mapping> <filter-name>nutzFilter</filter-name> 
+		<url-pattern>*.mvc2</url-pattern> </filter-mapping> <filter-mapping> <filter-name>nutzFilter</filter-name> 
+		<url-pattern>/</url-pattern> </filter-mapping> END NUTZ FILTER -->
+
+	<!-- START FACADE SERVLET--><!-- <servlet> <servlet-name>FACADE</servlet-name> 
+		<servlet-class>com.sunrise22.galaxy.service.ServiceDispatcher</servlet-class> 
+		<load-on-startup>1</load-on-startup> </servlet> <servlet-mapping> <servlet-name>FACADE</servlet-name> 
+		<url-pattern>/service</url-pattern> </servlet-mapping>--><!-- END FACADE SERVLET -->
+	<!-- OTHER CONFIG -->
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
 </web-app>

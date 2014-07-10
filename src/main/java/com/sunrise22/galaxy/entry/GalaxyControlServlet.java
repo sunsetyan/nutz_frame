@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.sunrise22.galaxy.usage;
+package com.sunrise22.galaxy.entry;
 
 import java.io.IOException;
 import java.io.PrintWriter;

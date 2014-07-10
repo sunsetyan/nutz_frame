@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.sunrise22.galaxy.config.ControllerConfig;
-import com.sunrise22.galaxy.usage.GalaxyControlServlet;
 
 public class ContextListener implements ServletContextListener {
 
