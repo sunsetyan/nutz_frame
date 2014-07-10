@@ -5,4 +5,4 @@
  * @author shengling
  *
  */
-package com.sunrise22.usage;
+package com.sunrise22.galaxy.usage;
