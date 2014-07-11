@@ -1,190 +1,250 @@
 package com.sunrise22.galaxy.extension;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
-import javax.servlet.GenericServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.nutz.lang.Files;
 import org.nutz.mvc.View;
 
-import freemarker.ext.jsp.TaglibFactory;
-import freemarker.ext.servlet.HttpRequestHashModel;
-import freemarker.ext.servlet.HttpRequestParametersHashModel;
-import freemarker.ext.servlet.HttpSessionHashModel;
-import freemarker.ext.servlet.ServletContextHashModel;
+import com.sunrise22.galaxy.common.DateUtils;
+import com.sunrise22.galaxy.common.StrUtils;
+
+import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
+import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.TemplateModel;
 
+/**
+ * Nutz MVC freemarker支持
+ * 
+ * @author <a herf="lexloo@gmail.com">lexloo</a>
+ * @version 1.0
+ * @since 销售宝 2.0
+ *        <p/>
+ * 
+ *        y
+ * 
+ *        <pre>
+ *                             历史：
+ *                                  建立: 2013-8-13 lexloo
+ * </pre>
+ */
 public class FreemarkerView implements View {
-	private static final String CONFIG_SERVLET_CONTEXT_KEY = "freemarker.Configuration";
-	private static final String ATTR_APPLICATION_MODEL = ".freemarker.Application";
-	private static final String ATTR_JSP_TAGLIBS_MODEL = ".freemarker.JspTaglibs";
-	private static final String ATTR_REQUEST_MODEL = ".freemarker.Request";
-	private static final String ATTR_REQUEST_PARAMETERS_MODEL = ".freemarker.RequestParameters";
-	private static final String KEY_APPLICATION = "Application";
-	private static final String KEY_REQUEST_MODEL = "Request";
-	private static final String KEY_SESSION_MODEL = "Session";
-	private static final String KEY_REQUEST_PARAMETER_MODEL = "Parameters";
-	private static final String KEY_EXCEPTION = "exception";
-	private static final String OBJ = "obj";
-	private static final String REQUEST = "request";
-	private static final String RESPONSE = "response";
-	private static final String SESSION = "session";
-	private static final String APPLICATION = "application";
-	private static final String KEY_JSP_TAGLIBS = "JspTaglibs";
-	private static final String BASE = "base";
-	private String path;
-	private Configuration cfg;
+    /**
+     * 版本TAG
+     */
+    public static final String VER_TAG = DateUtils.formatCurrentDate(DateUtils.DATE_TIME_24_FORMAT_SHORT);
+    /**
+     * freemark配置
+     */
+    private static final String CONFIG_SERVLET_CONTEXT_KEY = "freemarker.Configuration";
+    /**
+     * ?
+     */
+    private static final String VALUE = "value";
+    /**
+     * ?
+     */
+    private static final String REQUEST = "request";
+    /**
+     * ?
+     */
+    private static final String RESPONSE = "response";
+    /**
+     * ?
+     */
+    private static final String SESSION = "session";
+    /**
+     * ?
+     */
+    private static final String APPLICATION = "application";
+    /**
+     * 上下文背景
+     */
+    private static final String CONTEXT = "context";
+    /**
+     * ?
+     */
+    private String path;
+    /**
+     * ?
+     */
+    private Configuration cfg;
+    /**
+     * 使用的主题
+     */
+    private String theme = "start";
 
-	public FreemarkerView(String path) {
-		this.path = path;
-	}
+    /**
+     * 构造函数
+     * 
+     * @param path 模板路径
+     */
+    public FreemarkerView(String path) {
+        this.path = path;
+    }
 
-	public void render(HttpServletRequest request,
-			HttpServletResponse response, Object value) throws Throwable {
-		ServletContext sc = request.getSession().getServletContext();
-		cfg = getConfiguration(sc);
-		Map root = new HashMap();
-		root.put(OBJ, value);
-		root.put(REQUEST, request);
-		root.put(RESPONSE, response);
-		root.put(SESSION, request.getSession());
-		root.put(APPLICATION, sc);
-		// root.put(BASE, request.getContextPath());
-		Enumeration reqs = request.getAttributeNames();
-		while (reqs.hasMoreElements()) {
-			String strKey = (String) reqs.nextElement();
-			root.put(strKey, request.getAttribute(strKey));
-		}
-		jspTaglibs(sc, request, response, root, cfg.getObjectWrapper());
-		Template t = cfg.getTemplate(path);
-		response.setContentType("text/html; charset=" + t.getEncoding());
-		t.process(root, response.getWriter());
-	}
+    /**
+     * @param request 请求
+     * @param response 反应
+     * @param value 对象
+     * @throws Exception 异常
+     */
+    @SuppressWarnings({"rawtypes"})
+    public void render(HttpServletRequest request, HttpServletResponse response, Object value) throws Exception {
+        HttpSession session = request.getSession();
+        ServletContext sc = session.getServletContext();
+        cfg = getConfiguration(sc);
+        SimpleHash root = new SimpleHash(ObjectWrapper.BEANS_WRAPPER);
 
-	public final synchronized Configuration getConfiguration(
-			ServletContext servletContext) throws TemplateException {
-		Configuration config = (Configuration) servletContext
-				.getAttribute(CONFIG_SERVLET_CONTEXT_KEY);
-		if (config == null) {
-			config = new Configuration();
-			config.setServletContextForTemplateLoading(servletContext, "/");
-			// config.setDefaultEncoding("UTF-8");
-			config.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-			loadSettings(servletContext, config);
+        root.put("theme", theme);
+        root.put("version", VER_TAG);
+        root.put(VALUE, value);
+        root.put(REQUEST, request);
+        // 返回地址
+        root.put("refererUrl",
+                 this.getRefererUrl(session.getAttribute("referer"), (Map) session.getAttribute("refererMap")));
 
-			servletContext.setAttribute(CONFIG_SERVLET_CONTEXT_KEY, config);
-		}
-		config.setWhitespaceStripping(true);
-		return config;
-	}
+        // 地址和参数
+        session.setAttribute("referer", request.getRequestURI());
+        session.setAttribute("refererMap", getRefererMap(request));
 
-	protected void loadSettings(ServletContext servletContext,
-			Configuration config) {
-		InputStream in = null;
-		try {
-			in = new BufferedInputStream(new FileInputStream(
-					Files.findFile("freemarker.properties")));
-			if (in != null) {
-				Properties p = new Properties();
-				p.load(in);
-				config.setSettings(p);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (TemplateException e) {
-			e.printStackTrace();
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException io) {
-					io.printStackTrace();
-				}
-			}
-		}
-	}
+        root.put(CONTEXT, request.getContextPath());
+        root.put(RESPONSE, response);
+        root.put(SESSION, session);
+        root.put(APPLICATION, sc);
 
-	protected void jspTaglibs(ServletContext servletContext,
-			HttpServletRequest request, HttpServletResponse response,
-			Map model, ObjectWrapper wrapper) {
-		synchronized (servletContext) {
-			ServletContextHashModel servletContextModel = (ServletContextHashModel) servletContext
-					.getAttribute(ATTR_APPLICATION_MODEL);
+        Enumeration reqs = request.getAttributeNames();
+        while (reqs.hasMoreElements()) {
+            String strKey = (String) reqs.nextElement();
+            root.put(strKey, request.getAttribute(strKey));
+        }
 
-			if (servletContextModel == null) {
+        Template t = cfg.getTemplate(path);
+        response.setContentType("text/html; charset=utf-8");
+        t.process(root, response.getWriter());
+    }
 
-				GenericServlet servlet = JspSupportServlet.jspSupportServlet;
-				// TODO if the jsp support servlet isn't load-on-startup then it
-				// won't exist
-				// if it hasn't been accessed, and a JSP page is accessed
-				if (servlet != null) {
-					servletContextModel = new ServletContextHashModel(servlet,
-							wrapper);
-					servletContext.setAttribute(ATTR_APPLICATION_MODEL,
-							servletContextModel);
-					TaglibFactory taglibs = new TaglibFactory(servletContext);
-					servletContext
-							.setAttribute(ATTR_JSP_TAGLIBS_MODEL, taglibs);
-				}
+    /**
+     * ParameterMap转换成Map 直接在session中存入request.getParameterMap(),在jetty中可以获取，在Tomcat不能获取，不知道什么原因.
+     * 
+     * @param request 请求
+     * @return Map对象
+     */
+    private Map<String, String> getRefererMap(HttpServletRequest request) {
+        Map<String, String> paramMap = new HashMap<String, String>();
+        for (Object item : request.getParameterMap().entrySet()) {
+            @SuppressWarnings("rawtypes")
+            Map.Entry entry = (Map.Entry) item;
+            String[] vArr = (String[]) entry.getValue();
+            if (vArr != null && vArr.length > 0) {
+                paramMap.put((String) entry.getKey(), vArr[0]);
+            }
+        }
 
-			}
+        return paramMap;
+    }
 
-			model.put(KEY_APPLICATION, servletContextModel);
-			model.put(KEY_JSP_TAGLIBS, (TemplateModel) servletContext
-					.getAttribute(ATTR_JSP_TAGLIBS_MODEL));
-		}
+    /**
+     * 获取返回地址
+     * 
+     * @param uri uri
+     * @param paramMap 参数
+     * @return url
+     */
+    @SuppressWarnings({"rawtypes"})
+    private String getRefererUrl(Object uri, Map paramMap) {
+        String rtn = StrUtils.c2str(uri, "");
 
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			model.put(KEY_SESSION_MODEL, new HttpSessionHashModel(session,
-					wrapper));
-		}
+        if (paramMap != null && !paramMap.isEmpty()) {
+            List<String> pl = new ArrayList<String>();
 
-		HttpRequestHashModel requestModel = (HttpRequestHashModel) request
-				.getAttribute(ATTR_REQUEST_MODEL);
+            for (Object item : paramMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) item;
+                pl.add(entry.getKey() + "=" + entry.getValue());
+            }
 
-		if ((requestModel == null) || (requestModel.getRequest() != request)) {
-			requestModel = new HttpRequestHashModel(request, response, wrapper);
-			request.setAttribute(ATTR_REQUEST_MODEL, requestModel);
-		}
-		model.put(KEY_REQUEST_MODEL, requestModel);
+            rtn = rtn + "?" + StrUtils.join(pl, "&");
+        }
 
-		HttpRequestParametersHashModel reqParametersModel = (HttpRequestParametersHashModel) request
-				.getAttribute(ATTR_REQUEST_PARAMETERS_MODEL);
-		if (reqParametersModel == null || requestModel.getRequest() != request) {
-			reqParametersModel = new HttpRequestParametersHashModel(request);
-			request.setAttribute(ATTR_REQUEST_PARAMETERS_MODEL,
-					reqParametersModel);
-		}
-		model.put(KEY_REQUEST_PARAMETER_MODEL, reqParametersModel);
+        return rtn;
+    }
 
-		Throwable exception = (Throwable) request
-				.getAttribute("javax.servlet.error.exception");
+    /**
+     * 获取配置
+     * 
+     * @param servletContext 上下文
+     * @return 配置
+     * @throws TemplateException 异常
+     */
+    public final synchronized Configuration getConfiguration(ServletContext servletContext) throws TemplateException {
+        Configuration config = (Configuration) servletContext.getAttribute(CONFIG_SERVLET_CONTEXT_KEY);
+        if (config == null) {
+            config = new Configuration();
+            config.setServletContextForTemplateLoading(servletContext, "/");
+            config.setDefaultEncoding("UTF-8");
+            config.setEncoding(Locale.CHINA, "UTF-8");
+            config.setWhitespaceStripping(true);
+            config.setTemplateExceptionHandler(new CustomizedTemplateExceptionHandler());
 
-		if (exception == null) {
-			exception = (Throwable) request
-					.getAttribute("javax.servlet.error.JspException");
-		}
+            loadSettings(servletContext, config);
 
-		if (exception != null) {
-			model.put(KEY_EXCEPTION, exception);
-		}
-	}
+            servletContext.setAttribute(CONFIG_SERVLET_CONTEXT_KEY, config);
+        }
+        config.setWhitespaceStripping(true);
+        return config;
+    }
+
+    /**
+     * 加载配置
+     * 
+     * @param servletContext 上下文
+     * @param config 配置
+     */
+    private void loadSettings(ServletContext servletContext, Configuration config) {
+        try {
+            config.setSettings(FreemarkerView.class.getClassLoader()
+                                                   .getResourceAsStream("templates/freemarker.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TemplateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 自定义的模板异常处理器
+     * <p>
+     * 由于{@link TemplateExceptionHandler#HTML_DEBUG_HANDLER}渲染出来的html页面背景色是黄色， 看得人眼睛都花了。所以，这里自定义一个异常处理器， 跟
+     * {@link TemplateExceptionHandler#HTML_DEBUG_HANDLER}渲染效果一样。 区别就是背景色是白色，而不是黄色。文字也是黑色，而不是红色。
+     * </p>
+     * 
+     * @author <a href="wangbo@jccatech.com">wangbo</a>
+     */
+    private class CustomizedTemplateExceptionHandler implements TemplateExceptionHandler {
+
+        @Override
+        public void handleTemplateException(TemplateException te, Environment env, Writer out) throws TemplateException {
+            PrintWriter pw = (out instanceof PrintWriter) ? (PrintWriter) out : new PrintWriter(out);
+            pw.println("<html><div>--模板解析出错--</div><div>");
+            te.printStackTrace(pw);
+            pw.println("</div></html>");
+            pw.flush();
+            throw te;
+        }
+    }
 }
