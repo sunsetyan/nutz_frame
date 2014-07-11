@@ -1,11 +1,9 @@
 package com.sunrise22.galaxy.web;
 
 import org.nutz.mvc.annotation.Encoding;
-import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.IocBy;
 import org.nutz.mvc.annotation.Localization;
 import org.nutz.mvc.annotation.Modules;
-import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
 
@@ -20,6 +18,4 @@ import com.sunrise22.galaxy.usage.HiAction;
 @Modules(value={HiAction.class, HelloNutModule.class})
 @Views({FreemarkerViewMaker.class})
 @Localization("msg")   
-//@Ok("json")
-//@Fail("json")
 public class FacadeModule {}

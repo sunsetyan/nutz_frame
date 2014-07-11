@@ -1,9 +1,5 @@
 package com.sunrise22.galaxy.common;
 
-/**
- * CellSoft 2010
- */
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,13 +8,6 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/**
- * 日期处理实用类
- * 
- * @author lexloo
- * @version 1.0 2010-8-18
- * @since CS 1.0
- */
 public final class DateUtils {
     /**
      * 构造函数

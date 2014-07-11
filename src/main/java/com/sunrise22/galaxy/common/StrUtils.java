@@ -1,9 +1,5 @@
 package com.sunrise22.galaxy.common;
 
-/**
- * 北京中航嘉城科技股份有限公司(2013) 
- */
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,7 +15,6 @@ import org.apache.commons.lang.StringEscapeUtils;
  * 字符串处理实用类
  * 
  * @version 1.0 2010-06-20
- * @author lexloo05
  * @since CS 1.0
  * 
  */

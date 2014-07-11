@@ -1,18 +1,7 @@
 package com.sunrise22.galaxy.common;
 
-/**
- * 神州数码
- */
-
 import java.text.DecimalFormat;
 
-/**
- * 数值型处理实用类
- * 
- * @author lexloo
- * @version 1.0
- * 
- */
 public final class NumberUtils {
     /**
      * 0值比较

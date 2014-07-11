@@ -28,21 +28,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
-/**
- * Nutz MVC freemarker支持
- * 
- * @author <a herf="lexloo@gmail.com">lexloo</a>
- * @version 1.0
- * @since 销售宝 2.0
- *        <p/>
- * 
- *        y
- * 
- *        <pre>
- *                             历史：
- *                                  建立: 2013-8-13 lexloo
- * </pre>
- */
 public class FreemarkerView implements View {
     /**
      * 版本TAG
@@ -233,7 +218,6 @@ public class FreemarkerView implements View {
      * {@link TemplateExceptionHandler#HTML_DEBUG_HANDLER}渲染效果一样。 区别就是背景色是白色，而不是黄色。文字也是黑色，而不是红色。
      * </p>
      * 
-     * @author <a href="wangbo@jccatech.com">wangbo</a>
      */
     private class CustomizedTemplateExceptionHandler implements TemplateExceptionHandler {
 
